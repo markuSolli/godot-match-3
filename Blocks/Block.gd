@@ -4,7 +4,8 @@ extends Node2D
 
 var shapes = [
 	preload("res://Textures/square.png"),
-	preload("res://Textures/triangle.png")
+	preload("res://Textures/triangle.png"),
+	preload("res://Textures/star.png")
 	]
 var colors = [
 	Color(0.16, 0.17, 0.76),
@@ -14,7 +15,7 @@ var colors = [
 	Color(0.87, 0.13, 0.13)
 ]
 
-export(int, 0, 1) var shape = 0 setget set_shape
+export(int, 0, 2) var shape = 0 setget set_shape
 export(int, 0, 4) var color = 0 setget set_color
 
 onready var sprite = $Sprite
@@ -49,6 +50,10 @@ func pop_block():
 	tween.interpolate_property(self, "scale", scale, Vector2.ZERO, 0.12, Tween.TRANS_LINEAR)
 	tween.start()
 	pop_timer.start(0.12)
+
+func spawn_block():
+	tween.interpolate_property(self, "scale", Vector2.ZERO, scale, 0.12, Tween.TRANS_LINEAR)
+	tween.start()
 
 func _on_PopTimer_timeout():
 	queue_free()

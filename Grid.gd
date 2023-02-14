@@ -81,15 +81,15 @@ func detect_matches():
 
 func detect_matches_in_direction(var matches: Array, var dir: bool, var i_size, var j_size):
 	var current_nodes = []
-	var current_color = 0
+	var current_color = -1
 	var match_count = 0
 	
 	for i in range(i_size):
 		if match_count >= 3:
-			matches.append([match_count, current_nodes])
+			matches.append([match_count, current_color, current_nodes])
 		
 		current_nodes = []
-		current_color = 0
+		current_color = -1
 		match_count = 0
 		
 		for j in range(j_size):
@@ -103,7 +103,7 @@ func detect_matches_in_direction(var matches: Array, var dir: bool, var i_size, 
 				match_count += 1
 			else:
 				if match_count >= 3:
-					matches.append([match_count, current_nodes])
+					matches.append([match_count, current_color, current_nodes])
 				
 				current_nodes = []
 				current_color = block.color
@@ -114,13 +114,13 @@ func detect_matches_in_direction(var matches: Array, var dir: bool, var i_size, 
 				current_nodes.append([j, i])
 	
 	if match_count >= 3:
-			matches.append([match_count, current_nodes])
+			matches.append([match_count, current_color, current_nodes])
 	
 	return matches
 
 func remove_init_matches(var matches: Array):
 	for line in matches:
-		for coords in line[1]:
+		for coords in line[2]:
 			var block = block_array[coords[0]][coords[1]]
 			if block:
 				block.queue_free()
@@ -131,15 +131,53 @@ func remove_matches(var matches: Array):
 	for line in matches:
 		score += line[0]
 		
-		if score == 4:
-			# handle_four_match(line[1])
-			handle_three_match(line[1])
+		if line[0] >= 5:
+			handle_five_match(line[1], line[2])
+		elif line[0] == 4:
+			handle_four_match(line[1], line[2])
 		else:
-			handle_three_match(line[1])
+			handle_three_match(line[2])
 	
 	emit_signal("award_points", score)
 
-func handle_four_match(var line: Array):
+func handle_five_match(var color: int, var line: Array):
+	var reward_coord = get_reward_coord(line)
+	
+	# Pop existing blocks
+	handle_three_match(line)
+	
+	# Spawn reward block
+	spawn_block(reward_coord[0], reward_coord[1], color, 2)
+
+func handle_four_match(var color: int, var line: Array):
+	var reward_coord = get_reward_coord(line)
+	
+	# Pop existing blocks
+	handle_three_match(line)
+	
+	# Spawn reward block
+	spawn_block(reward_coord[0], reward_coord[1], color, 1)
+
+func handle_three_match(var line: Array):
+	for coords in line:
+		var block = block_array[coords[0]][coords[1]]
+		if block:
+			block.pop_block()
+			block_array[coords[0]][coords[1]] = null
+
+func spawn_block(var x, var y, var color = -1, var shape = 0):
+	var new_block = general_block.instance()
+	new_block.shape = shape
+	if color == -1:
+		new_block.set_random_color()
+	else:
+		new_block.color = color
+	new_block.position = grid_to_pos(x, y)
+	add_child(new_block)
+	new_block.spawn_block()
+	block_array[x][y] = new_block
+
+func get_reward_coord(var line: Array) -> Vector2:
 	var reward_coord
 	
 	# Look for a block handled by user
@@ -154,26 +192,14 @@ func handle_four_match(var line: Array):
 		var rand_coord = line[randi() % line.size()]
 		reward_coord = Vector2(rand_coord[0], rand_coord[1])
 	
-	
-
-func handle_three_match(var line: Array):
-	for coords in line:
-		var block = block_array[coords[0]][coords[1]]
-		if block:
-			block.pop_block()
-			block_array[coords[0]][coords[1]] = null
+	return reward_coord
 
 func replace_missing_blocks():
 	for i in range(width):
 		for j in range(height):
 			var block = block_array[i][j]
 			if !block:
-				var new_block = general_block.instance()
-				new_block.shape = 0
-				new_block.set_random_color()
-				new_block.position = grid_to_pos(i, j)
-				add_child(new_block)
-				block_array[i][j] = new_block
+				spawn_block(i, j)
 
 func handle_swipe():
 	var start_block = block_array[start_swipe.x][start_swipe.y]
