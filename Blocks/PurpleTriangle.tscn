@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Blocks/Triangle.tscn" type="PackedScene" id=1]
+
+[node name="PurpleTriangle" instance=ExtResource( 1 )]
+color = 4
+
+[node name="Sprite" parent="." index="0"]
+modulate = Color( 0.894118, 0.2, 0.898039, 1 )
