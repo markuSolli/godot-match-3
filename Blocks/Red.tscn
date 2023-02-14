@@ -1,9 +1,0 @@
-[gd_scene load_steps=2 format=2]
-
-[ext_resource path="res://Blocks/Block1.tscn" type="PackedScene" id=1]
-
-[node name="Red" instance=ExtResource( 1 )]
-color = 5
-
-[node name="Sprite" parent="." index="0"]
-modulate = Color( 0.87451, 0.137255, 0.137255, 1 )

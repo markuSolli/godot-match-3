@@ -1,10 +1,36 @@
+tool
+
 extends Node2D
 
-export(int) var color = 0
+var shapes = [
+	preload("res://Textures/square.png"),
+	preload("res://Textures/triangle.png")
+	]
+var colors = [
+	Color(0.16, 0.17, 0.76),
+	Color(0.16, 0.81, 0.22),
+	Color(0.95, 0.53, 0.13),
+	Color(0.89, 0.20, 0.89),
+	Color(0.87, 0.13, 0.13)
+]
+
+export(int, 0, 1) var shape = 0 setget set_shape
+export(int, 0, 4) var color = 0 setget set_color
 
 onready var sprite = $Sprite
 onready var tween = $Tween
 onready var pop_timer = $PopTimer
+
+func set_shape(var value: int):
+	shape = value
+	$Sprite.texture = shapes[value]
+
+func set_color(var value: int):
+	color = value
+	$Sprite.modulate = colors[value]
+
+func set_random_color():
+	set_color(randi() % colors.size())
 
 func swap_block(var pos: Vector2, var time: float):
 	tween.interpolate_property(self, "global_position", global_position, pos, time, Tween.TRANS_SINE, Tween.EASE_OUT)

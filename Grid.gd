@@ -1,6 +1,6 @@
 extends Node2D
 
-export(Array, PackedScene) var blocks = []
+var general_block = preload("res://Blocks/Block.tscn")
 
 signal award_points
 
@@ -55,8 +55,9 @@ func init_blocks():
 	for i in range(width):
 		block_array.append([])
 		for j in range(height):
-			var block_scene = blocks[randi() % blocks.size()]
-			var block = block_scene.instance()
+			var block = general_block.instance()
+			block.shape = 0
+			block.set_random_color()
 			block.position = grid_to_pos(i, j)
 			add_child(block)
 			block_array[i].append(block)
@@ -167,8 +168,9 @@ func replace_missing_blocks():
 		for j in range(height):
 			var block = block_array[i][j]
 			if !block:
-				var block_scene = blocks[randi() % blocks.size()]
-				var new_block = block_scene.instance()
+				var new_block = general_block.instance()
+				new_block.shape = 0
+				new_block.set_random_color()
 				new_block.position = grid_to_pos(i, j)
 				add_child(new_block)
 				block_array[i][j] = new_block
@@ -264,8 +266,9 @@ func fall_and_replace_blocks():
 			var block = block_array[x][y]
 			
 			if (!block):
-				var block_scene = blocks[randi() % blocks.size()]
-				var new_block = block_scene.instance()
+				var new_block = general_block.instance()
+				new_block.shape = 0
+				new_block.set_random_color()
 				new_block.position = grid_to_pos(x, spawn_height)
 				add_child(new_block)
 				block_array[x][y] = new_block
