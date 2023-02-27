@@ -26,6 +26,8 @@ var start_swipe: Vector2
 var end_swipe: Vector2
 
 func _ready():
+	randomize()
+	
 	state = MOVE
 	init_blocks()
 	var matches = detect_matches()
@@ -159,11 +161,46 @@ func handle_four_match(var color: int, var line: Array):
 	spawn_block(reward_coord[0], reward_coord[1], color, 1)
 
 func handle_three_match(var line: Array):
+	# Get direction of line
+	var line_dir = Vector2(line[0][0],line[0][1]) - Vector2(line[1][0],line[1][1])
+	
 	for coords in line:
 		var block = block_array[coords[0]][coords[1]]
 		if block:
-			block.pop_block()
-			block_array[coords[0]][coords[1]] = null
+			# Pop all blocks of same color if popping a shape 2 block
+			if block.shape == 2:
+				pop_color(block.color)
+				return
+			# Pop whole line if popping a shape 1 block
+			elif block.shape == 1:
+				pop_line(coords[0], coords[1], line_dir)
+				return
+			else:
+				block.pop_block()
+				block_array[coords[0]][coords[1]] = null
+
+func pop_line(var x: int, var y: int, var dir: Vector2):
+	var pos = Vector2(x, y)
+	
+	if dir.x != 0:
+		for i in range(0, width):
+			pop_block(i, y)
+	else:
+		for i in range(0, height):
+			pop_block(x, i)
+
+func pop_color(var color: int):
+	for i in range(0, width):
+		for j in range(0, height):
+			var block = block_array[i][j]
+			if block and block.color == color:
+				pop_block(i, j)
+
+func pop_block(var x: int, var y: int):
+	var block = block_array[x][y]
+	if block:
+		block.pop_block()
+		block_array[x][y] = null
 
 func spawn_block(var x, var y, var color = -1, var shape = 0):
 	var new_block = general_block.instance()
